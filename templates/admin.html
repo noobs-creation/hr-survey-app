@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Survey Admin</title>
+    <style>
+        body { font-family: sans-serif; padding: 20px; background: #f0f0f0; }
+        table { width: 100%; border-collapse: collapse; background: white; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
+        th { background-color: #003366; color: white; }
+        tr:nth-child(even) { background-color: #f9f9f9; }
+        pre { font-size: 0.8em; color: #555; white-space: pre-wrap; }
+    </style>
+</head>
+<body>
+    <h1 style="color:#003366;">Survey Results</h1>
+    <p>Total Responses: {{ responses|length }}</p>
+    <table>
+        <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Submitted At (UTC)</th>
+            <th>Answers (JSON)</th>
+        </tr>
+        {% for row in responses %}
+        <tr>
+            <td>{{ row.id }}</td>
+            <td><strong>{{ row.respondent_name }}</strong></td>
+            <td>{{ row.submitted_at }}</td>
+            <td><pre>{{ row.answers }}</pre></td>
+        </tr>
+        {% endfor %}
+    </table>
+</body>
+</html>

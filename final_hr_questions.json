@@ -1,0 +1,65 @@
+{
+  "Creativity": [
+    "My organization is open to new ideas and best practices.",
+    "My managers actively seek innovative ideas.",
+    "My Department tries to find new and better ways to do things.",
+    "My Project Manager encourages innovative ideas."
+  ],
+  "Innovation": [
+    "I feel I have a positive attitude toward change and am looking forward to doing new things.",
+    "The Leadership is willing to change to meet new objectives.",
+    "The Leadership is focused on process improvement.",
+    "The organizational culture is open to innovation."
+  ],
+  "Satisfaction": [
+    "I feel satisfied at [Company].",
+    "I enjoy working at [Company].",
+    "I am proud to work for [Company].",
+    "Considering everything, I am satisfied with my employment.",
+    "I get a sense of personal accomplishment from my work.",
+    "Overall, my workload is reasonable."
+  ],
+  "Compensation": [
+    "I am satisfied with the level of pay I receive.",
+    "I feel I am adequately paid compared to my colleagues at other companies.",
+    "My pay matches my job performance.",
+    "I am compensated fairly for the work I do.",
+    "I am satisfied with the increases in compensation."
+  ],
+  "Benefits": [
+    "I know the value of my benefits.",
+    "The benefits offered provide security for me and my family.",
+    "I feel the company's benefits meet my needs.",
+    "I am satisfied with my benefits.",
+    "The information that I have received about employee benefits is easy to understand."
+  ],
+  "Communication": [
+    "I generally feel informed about changes that affect me.",
+    "I usually know in plenty of time when important things happen.",
+    "Managers communicate clear objectives for the company to achieve.",
+    "My Supervisor keeps me informed about important issues.",
+    "The managers keep us informed about issues at the company.",
+    "I feel managers value honest and candid feedback."
+  ],
+  "Mentoring": [
+    "My Supervisor coaches me to help me develop professionally.",
+    "My Supervisor has taken an interest in my career development.",
+    "I receive mentoring and coaching from my superior.",
+    "My Supervisor has given me good feedback on how I can advance my career."
+  ],
+  "Teamwork": [
+    "I feel I am part of the team.",
+    "I have good working relationships with my co-workers.",
+    "My coworkers help each other.",
+    "The organizational culture enhances teamwork.",
+    "The people I work with cooperate to get the work done."
+  ],
+  "Staff Development": [
+    "I have the skills I need to do my job.",
+    "The training I receive is relevant to my job.",
+    "I am continuously learning and trying to improve myself.",
+    "I am aware of available training and development activities.",
+    "I am given real opportunity to improve my skills.",
+    "I have career opportunities available to me."
+  ]
+}

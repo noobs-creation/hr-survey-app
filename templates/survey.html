@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employee Satisfaction Survey</title>
+    <style>
+        body { font-family: Arial, Helvetica, sans-serif; background-color: #f4f4f4; margin: 0; padding: 20px; color: #333; }
+        .container { max-width: 900px; margin: 0 auto; background: white; border: 1px solid #ccc; padding: 25px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+        
+        h1 { color: #003366; border-bottom: 3px solid #003366; padding-bottom: 10px; margin-top: 0; }
+        
+        .instructions { background-color: #eef; padding: 15px; border: 1px solid #bnd; margin-bottom: 25px; font-size: 0.95em; line-height: 1.5; }
+        
+        /* Category Header */
+        .category-header { background-color: #ddd; color: #003366; font-weight: bold; padding: 10px 15px; margin-top: 25px; border-left: 6px solid #003366; font-size: 1.1em; }
+        
+        /* The Table Matrix */
+        table { width: 100%; border-collapse: collapse; margin-bottom: 10px; font-size: 0.9em; }
+        th { background-color: #003366; color: white; padding: 10px; text-align: center; font-weight: normal; }
+        th.question-col { text-align: left; width: 50%; }
+        
+        td { border-bottom: 1px solid #ddd; padding: 10px; vertical-align: middle; }
+        
+        /* Zebra Striping */
+        tr:nth-child(even) { background-color: #f9f9f9; }
+        tr:hover { background-color: #f1f1f1; }
+        
+        .radio-cell { text-align: center; }
+        input[type="radio"] { cursor: pointer; transform: scale(1.2); }
+
+        /* Submit Button */
+        .btn-container { text-align: center; margin-top: 50px; padding-top: 20px; border-top: 1px solid #eee; }
+        button { background-color: #cc0000; color: white; padding: 12px 30px; border: none; font-size: 16px; font-weight: bold; cursor: pointer; border-radius: 4px; }
+        button:hover { background-color: #990000; }
+
+        /* Success Message */
+        .success-box { background-color: #dff0d8; color: #3c763d; border: 1px solid #d6e9c6; padding: 20px; text-align: center; margin-bottom: 20px; font-size: 1.2em; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    {% if success %}
+        <div class="success-box">
+            <strong>Thank You!</strong><br>
+            Your responses have been successfully saved to our database.
+        </div>
+        <div style="text-align: center;">
+            <a href="/">Submit another response</a>
+        </div>
+    {% else %}
+        <h1>Employee Satisfaction Survey</h1>
+        <div class="instructions">
+            Please answer the following questions regarding your experience. Select the option that best describes your opinion.<br>
+            <strong>Scale:</strong> 1 (Strongly Disagree) to 5 (Strongly Agree)
+        </div>
+
+        <form action="/submit" method="POST">
+            <div style="margin-bottom: 20px; padding: 10px; background: #fafafa; border: 1px solid #eee;">
+                <label style="font-weight: bold;">Your Name (Optional):</label>
+                <input type="text" name="respondent_name" style="padding: 5px; width: 250px;">
+            </div>
+
+            {% for category, questions in survey_data.items() %}
+                <div class="category-header">{{ category }}</div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th class="question-col">Question</th>
+                            <th>Strongly<br>Disagree (1)</th>
+                            <th>2</th>
+                            <th>3</th>
+                            <th>4</th>
+                            <th>Strongly<br>Agree (5)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for question_text in questions %}
+                        <tr>
+                            <td>{{ question_text }}</td>
+                            {% for i in range(1, 6) %}
+                            <td class="radio-cell">
+                                <input type="radio" name="{{ category }}_{{ loop.index }}" value="{{ i }}" required>
+                            </td>
+                            {% endfor %}
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% endfor %}
+
+            <div class="btn-container">
+                <button type="submit">Submit Survey</button>
+            </div>
+        </form>
+    {% endif %}
+</div>
+
+</body>
+</html>
