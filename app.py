@@ -20,34 +20,45 @@ def get_db_connection():
 def index():
     return render_template('survey.html', survey_data=SURVEY_DATA)
 
+
+
 @app.route('/submit', methods=['POST'])
 def submit():
-    form_data = request.form.to_dict()
+    # 1. Get the raw form data
+    raw_data = request.form.to_dict()
     
-    # Extract the optional name, default to "Anonymous" if empty
-    respondent_name = form_data.pop('respondent_name', 'Anonymous')
+    # 2. Extract the respondent's name (remove it from the answers list)
+    respondent_name = raw_data.pop('respondent_name', 'Anonymous')
     if not respondent_name: respondent_name = 'Anonymous'
     
-    # The rest of form_data is the answers (e.g., "Creativity_1": "5")
+    # 3. Process the remaining data to convert "5" (string) -> 5 (integer)
+    processed_answers = {}
+    for key, value in raw_data.items():
+        try:
+            # Try to convert to an integer (e.g., "5" becomes 5)
+            processed_answers[key] = int(value)
+        except ValueError:
+            # If it's not a number, keep it as text
+            processed_answers[key] = value
     
+    # 4. Save to Supabase
     try:
         conn = get_db_connection()
         cur = conn.cursor()
         cur.execute(
             "INSERT INTO survey_responses (respondent_name, answers) VALUES (%s, %s)",
-            (respondent_name, json.dumps(form_data))
+            (respondent_name, json.dumps(processed_answers))
         )
         conn.commit()
         cur.close()
         conn.close()
-        # Render the page again with a success flag
         return render_template('survey.html', survey_data=SURVEY_DATA, success=True)
     except Exception as e:
         return f"Database Error: {e}"
 
 @app.route('/admin')
 def admin():
-    # SECURITY: Require a secret key in the URL (e.g., /admin?key=1234)
+    # SECURITY: Require a secret key in the URL
     if request.args.get('key') != 'mysecretadminpassword':
         return "Access Denied. Incorrect Key."
 
@@ -58,7 +69,8 @@ def admin():
     cur.close()
     conn.close()
     
-    return render_template('admin.html', responses=rows)
+    # Pass 'survey_data' so we can show the actual question text, not just the ID
+    return render_template('admin.html', responses=rows, survey_data=SURVEY_DATA)
 
 if __name__ == '__main__':
     app.run(debug=True)

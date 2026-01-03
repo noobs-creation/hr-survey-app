@@ -4,32 +4,107 @@
     <meta charset="UTF-8">
     <title>Survey Admin</title>
     <style>
-        body { font-family: sans-serif; padding: 20px; background: #f0f0f0; }
-        table { width: 100%; border-collapse: collapse; background: white; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-        th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
-        th { background-color: #003366; color: white; }
-        tr:nth-child(even) { background-color: #f9f9f9; }
-        pre { font-size: 0.8em; color: #555; white-space: pre-wrap; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 20px; background: #f4f6f8; color: #333; }
+        h1 { color: #003366; border-bottom: 2px solid #003366; padding-bottom: 10px; }
+        
+        /* Card Style for each user */
+        .response-card {
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            overflow: hidden;
+        }
+        
+        .card-header {
+            background-color: #003366;
+            color: white;
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .card-body { padding: 20px; }
+
+        /* The Data Table inside the card */
+        table { width: 100%; border-collapse: collapse; font-size: 0.9em; }
+        th, td { border-bottom: 1px solid #eee; padding: 12px 8px; text-align: left; }
+        th { color: #555; font-weight: 600; width: 60%; }
+        
+        /* Coloring the ratings */
+        .rating-1 { color: #d9534f; font-weight: bold; } /* Strongly Disagree (Red) */
+        .rating-2 { color: #e48632; }
+        .rating-3 { color: #777; }
+        .rating-4 { color: #337ab7; }
+        .rating-5 { color: #28a745; font-weight: bold; } /* Strongly Agree (Green) */
+
+        .category-label {
+            background: #eee;
+            font-weight: bold;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 0.8em;
+            color: #666;
+            display: inline-block;
+            margin-bottom: 5px;
+        }
     </style>
 </head>
 <body>
-    <h1 style="color:#003366;">Survey Results</h1>
+
+    <h1>Survey Results Dashboard</h1>
     <p>Total Responses: {{ responses|length }}</p>
-    <table>
-        <tr>
-            <th>ID</th>
-            <th>Name</th>
-            <th>Submitted At (UTC)</th>
-            <th>Answers (JSON)</th>
-        </tr>
-        {% for row in responses %}
-        <tr>
-            <td>{{ row.id }}</td>
-            <td><strong>{{ row.respondent_name }}</strong></td>
-            <td>{{ row.submitted_at }}</td>
-            <td><pre>{{ row.answers }}</pre></td>
-        </tr>
-        {% endfor %}
-    </table>
+
+    {% for row in responses %}
+    <div class="response-card">
+        <div class="card-header">
+            <div>
+                <strong>Respondent:</strong> {{ row.respondent_name }}
+            </div>
+            <div style="font-size: 0.85em;">
+                ID: {{ row.id }} | {{ row.submitted_at.strftime('%Y-%m-%d %H:%M') }}
+            </div>
+        </div>
+        <div class="card-body">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Question</th>
+                        <th>Rating</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for key, val in row.answers.items()|sort %}
+                        
+                        {% set parts = key.rsplit('_', 1) %}
+                        {% set category = parts[0] %}
+                        {% set index = parts[1]|int %} 
+                        
+                        {% set question_text = survey_data[category][index - 1] %}
+                        
+                        <tr>
+                            <td>
+                                <span class="category-label">{{ category }}</span><br>
+                                {{ question_text }}
+                            </td>
+                            <td>
+                                {% if val == 1 %} <span class="rating-1">Strongly Disagree (1)</span>
+                                {% elif val == 2 %} <span class="rating-2">Disagree (2)</span>
+                                {% elif val == 3 %} <span class="rating-3">Neutral (3)</span>
+                                {% elif val == 4 %} <span class="rating-4">Agree (4)</span>
+                                {% elif val == 5 %} <span class="rating-5">Strongly Agree (5)</span>
+                                {% else %} {{ val }}
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% endfor %}
+
 </body>
 </html>
