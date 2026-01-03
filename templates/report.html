@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>HR Executive Summary</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; padding: 40px; background: #f9f9f9; color: #333; }
+        .container { max-width: 1000px; margin: 0 auto; background: white; padding: 40px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+        
+        h1 { color: #003366; text-align: center; margin-bottom: 10px; }
+        .subtitle { text-align: center; color: #666; margin-bottom: 40px; }
+
+        /* KPI Cards (Key Performance Indicators) */
+        .kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 40px; }
+        .kpi-card { background: #f4f6f8; padding: 20px; text-align: center; border-radius: 8px; border: 1px solid #ddd; }
+        .kpi-val { font-size: 2em; font-weight: bold; color: #003366; display: block; margin-bottom: 5px; }
+        .kpi-label { font-size: 0.9em; color: #555; text-transform: uppercase; letter-spacing: 1px; }
+
+        /* Chart Layout */
+        .chart-section { display: flex; gap: 40px; margin-bottom: 40px; align-items: center; }
+        .radar-box { flex: 1; }     /* Spider Chart */
+        .bar-box { flex: 1; }       /* Bar Chart */
+
+        .footer { text-align: center; margin-top: 50px; font-size: 0.8em; color: #999; border-top: 1px solid #eee; padding-top: 20px; }
+        
+        @media print {
+            body { background: white; padding: 0; }
+            .container { box-shadow: none; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Organization Culture Report</h1>
+    <div class="subtitle">Generated on {{ timestamp }} (IST)</div>
+
+    <div class="kpi-grid">
+        <div class="kpi-card">
+            <span class="kpi-val">{{ overall }} / 5.0</span>
+            <span class="kpi-label">Engagement Score</span>
+        </div>
+        <div class="kpi-card">
+            <span class="kpi-val">{{ total }}</span>
+            <span class="kpi-label">Total Responses</span>
+        </div>
+        <div class="kpi-card">
+            <span class="kpi-val" style="color: #28a745;">{{ strongest[0] }}</span>
+            <span class="kpi-label">Top Strength</span>
+        </div>
+        <div class="kpi-card">
+            <span class="kpi-val" style="color: #dc3545;">{{ weakest[0] }}</span>
+            <span class="kpi-label">Needs Focus</span>
+        </div>
+    </div>
+
+    <div class="chart-section">
+        <div class="radar-box">
+            <h3 style="text-align: center; color: #444;">Category Balance</h3>
+            <canvas id="radarChart"></canvas>
+        </div>
+        <div class="bar-box">
+            <h3 style="text-align: center; color: #444;">Detailed Scores</h3>
+            <canvas id="barChart"></canvas>
+        </div>
+    </div>
+
+    <div class="footer">
+        Confidential Internal Report • Do not distribute externally.
+    </div>
+</div>
+
+<script>
+    // Data passed from Flask
+    const categories = {{ averages.keys()|list|tojson }};
+    const scores = {{ averages.values()|list|tojson }};
+
+    // 1. Radar Chart Configuration
+    const ctxRadar = document.getElementById('radarChart').getContext('2d');
+    new Chart(ctxRadar, {
+        type: 'radar',
+        data: {
+            labels: categories,
+            datasets: [{
+                label: 'Score (out of 5)',
+                data: scores,
+                backgroundColor: 'rgba(0, 51, 102, 0.2)', // HR Blue transparent
+                borderColor: 'rgba(0, 51, 102, 1)',
+                borderWidth: 2,
+                pointBackgroundColor: 'rgba(0, 51, 102, 1)'
+            }]
+        },
+        options: {
+            scales: {
+                r: {
+                    min: 0,
+                    max: 5,
+                    ticks: { stepSize: 1 }
+                }
+            }
+        }
+    });
+
+    // 2. Bar Chart Configuration
+    const ctxBar = document.getElementById('barChart').getContext('2d');
+    new Chart(ctxBar, {
+        type: 'bar',
+        data: {
+            labels: categories,
+            datasets: [{
+                label: 'Average Score',
+                data: scores,
+                backgroundColor: scores.map(s => s >= 4 ? '#28a745' : (s < 3 ? '#dc3545' : '#003366')), // Green for high, Red for low
+            }]
+        },
+        options: {
+            indexAxis: 'y', // Horizontal Bar Chart
+            scales: {
+                x: { min: 0, max: 5 }
+            },
+            plugins: {
+                legend: { display: false }
+            }
+        }
+    });
+</script>
+
+</body>
+</html>
