@@ -4,7 +4,13 @@ import psycopg2
 from flask import Flask, render_template, request
 from psycopg2.extras import RealDictCursor
 from datetime import datetime
-import pytz # New library for Timezones
+import pytz
+
+# --- NEW LINES START ---
+from dotenv import load_dotenv
+
+# Load environment variables from .env file (if it exists)
+load_dotenv()
 
 app = Flask(__name__)
 
@@ -59,6 +65,7 @@ def submit():
 
 @app.route('/admin')
 def admin():
+    # 1. Security Check
     if request.args.get('key') != 'mysecretadminpassword':
         return "Access Denied."
 
@@ -68,8 +75,67 @@ def admin():
     rows = cur.fetchall()
     cur.close()
     conn.close()
+
+    # Define IST Timezone
+    ist_tz = pytz.timezone('Asia/Kolkata')
+
+    # --- INDIVIDUAL PROCESSING ENGINE ---
+    processed_rows = []
     
-    return render_template('admin.html', responses=rows, survey_data=SURVEY_DATA)
+    for row in rows:
+        # A. CONVERT TIME TO IST
+        # Postgres returns UTC. We convert it to IST for display.
+        utc_time = row['submitted_at']
+        if utc_time:
+            # If naive (no timezone), assume UTC first
+            if utc_time.tzinfo is None:
+                utc_time = pytz.utc.localize(utc_time)
+            # Convert to IST
+            row['submitted_at'] = utc_time.astimezone(ist_tz)
+
+        # B. CALCULATE STATS (Existing Logic)
+        answers = row['answers']
+        cat_totals = {k: [] for k in SURVEY_DATA.keys()}
+        
+        for key, val in answers.items():
+            if isinstance(val, int) and '_' in key:
+                category = key.rsplit('_', 1)[0]
+                if category in cat_totals:
+                    cat_totals[category].append(val)
+        
+        cat_averages = {}
+        for cat, scores in cat_totals.items():
+            if scores:
+                cat_averages[cat] = round(sum(scores) / len(scores), 2)
+            else:
+                cat_averages[cat] = 0
+        
+        active_cats = {k:v for k,v in cat_averages.items() if v > 0}
+        
+        if active_cats:
+            sorted_cats = sorted(active_cats.items(), key=lambda x: x[1], reverse=True)
+            strength = sorted_cats[0]
+            weakness = sorted_cats[-1]
+            overall = round(sum(active_cats.values()) / len(active_cats), 2)
+        else:
+            strength = ("N/A", 0)
+            weakness = ("N/A", 0)
+            overall = 0
+
+        # C. ATTACH STATS
+        row_dict = dict(row)
+        row_dict['stats'] = {
+            'averages': cat_averages,
+            'strength': strength,
+            'weakness': weakness,
+            'overall': overall,
+            'categories_list': list(cat_averages.keys()),
+            'scores_list': list(cat_averages.values())
+        }
+        processed_rows.append(row_dict)
+
+    return render_template('admin.html', responses=processed_rows, survey_data=SURVEY_DATA)
+
 
 @app.route('/report')
 def report():

@@ -2,109 +2,194 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Survey Admin</title>
+    <title>Admin Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 20px; background: #f4f6f8; color: #333; }
-        h1 { color: #003366; border-bottom: 2px solid #003366; padding-bottom: 10px; }
+        :root { --primary: #003366; --bg: #f4f6f8; --success: #28a745; --danger: #dc3545; }
+        body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg); padding: 40px; color: #333; }
         
-        /* Card Style for each user */
-        .response-card {
-            background: white;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            margin-bottom: 30px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-            overflow: hidden;
-        }
-        
-        .card-header {
-            background-color: #003366;
-            color: white;
-            padding: 15px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        
-        .card-body { padding: 20px; }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+        h1 { color: var(--primary); margin: 0; }
+        .badge { background: var(--primary); color: white; padding: 5px 12px; border-radius: 20px; font-size: 0.9em; }
 
-        /* The Data Table inside the card */
-        table { width: 100%; border-collapse: collapse; font-size: 0.9em; }
-        th, td { border-bottom: 1px solid #eee; padding: 12px 8px; text-align: left; }
-        th { color: #555; font-weight: 600; width: 60%; }
-        
-        /* Coloring the ratings */
-        .rating-1 { color: #d9534f; font-weight: bold; } /* Strongly Disagree (Red) */
-        .rating-2 { color: #e48632; }
-        .rating-3 { color: #777; }
-        .rating-4 { color: #337ab7; }
-        .rating-5 { color: #28a745; font-weight: bold; } /* Strongly Agree (Green) */
+        /* User Card Styling */
+        .user-card { background: white; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-bottom: 20px; overflow: hidden; transition: transform 0.2s; }
+        .user-card:hover { box-shadow: 0 8px 15px rgba(0,0,0,0.1); }
 
-        .category-label {
-            background: #eee;
-            font-weight: bold;
-            padding: 5px 10px;
-            border-radius: 4px;
-            font-size: 0.8em;
-            color: #666;
-            display: inline-block;
-            margin-bottom: 5px;
+        /* The Summary Strip (Always Visible) */
+        .card-summary { 
+            padding: 20px 30px; 
+            display: grid; 
+            grid-template-columns: 2fr 1fr 1fr 1fr 50px; 
+            align-items: center; 
+            cursor: pointer;
+            border-bottom: 1px solid transparent;
         }
+        .card-summary:hover { background-color: #fcfcfc; }
+        .card-summary.active { border-bottom: 1px solid #eee; background-color: #fafafa; }
+
+        .user-info h3 { margin: 0; font-size: 1.1em; color: var(--primary); }
+        .user-meta { font-size: 0.85em; color: #777; }
+        
+        /* Stat Pills */
+        .stat-pill { text-align: center; }
+        .stat-label { font-size: 0.75em; text-transform: uppercase; color: #888; letter-spacing: 0.5px; display: block; }
+        .stat-value { font-weight: bold; font-size: 1.1em; }
+        .score-high { color: var(--success); }
+        .score-low { color: var(--danger); }
+
+        /* The Details Section (Hidden by default) */
+        .card-details { display: none; padding: 30px; background: #fff; animation: fadeIn 0.3s ease-in-out; }
+        .card-details.show { display: block; }
+
+        /* Grid for Chart vs Table */
+        .details-grid { display: grid; grid-template-columns: 1fr 1.5fr; gap: 40px; }
+        
+        /* Table Styling */
+        .data-table { width: 100%; border-collapse: collapse; font-size: 0.9em; }
+        .data-table th { text-align: left; color: #555; padding: 8px; border-bottom: 2px solid #eee; }
+        .data-table td { padding: 8px; border-bottom: 1px solid #f0f0f0; }
+        .cat-tag { background: #eee; padding: 2px 6px; border-radius: 4px; font-size: 0.8em; font-weight: bold; color: #555; }
+
+        /* Expand Icon */
+        .caret { transition: transform 0.3s; }
+        .active .caret { transform: rotate(180deg); }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
 
-    <h1>Survey Results Dashboard</h1>
-    <p>Total Responses: {{ responses|length }}</p>
+    <div class="header">
+        <div>
+            <h1>Admin Dashboard</h1>
+            <p style="color: #666; margin-top: 5px;">Review individual employee feedback</p>
+        </div>
+        <span class="badge">{{ responses|length }} Submissions</span>
+    </div>
 
     {% for row in responses %}
-    <div class="response-card">
-        <div class="card-header">
-            <div>
-                <strong>Respondent:</strong> {{ row.respondent_name }}
+    <div class="user-card">
+        <div class="card-summary" onclick="toggleCard('details-{{ row.id }}', this)">
+            <div class="user-info">
+                <h3>{{ row.respondent_name }}</h3>
+                <span class="user-meta">Submitted: {{ row.submitted_at.strftime('%Y-%m-%d %H:%M') }}</span>
             </div>
-            <div style="font-size: 0.85em;">
-                ID: {{ row.id }} | {{ row.submitted_at.strftime('%Y-%m-%d %H:%M') }}
+            
+            <div class="stat-pill">
+                <span class="stat-label">Overall</span>
+                <span class="stat-value">{{ row.stats.overall }} / 5</span>
+            </div>
+            <div class="stat-pill">
+                <span class="stat-label">Top Strength</span>
+                <span class="stat-value score-high">{{ row.stats.strength[0] }}</span>
+            </div>
+            <div class="stat-pill">
+                <span class="stat-label">Needs Focus</span>
+                <span class="stat-value score-low">{{ row.stats.weakness[0] }}</span>
+            </div>
+
+            <div style="text-align: right;">
+                <i class="ph ph-caret-down caret" style="font-size: 1.2em; color: #aaa;"></i>
             </div>
         </div>
-        <div class="card-body">
-            <table>
-                <thead>
-                    <tr>
-                        <th>Question</th>
-                        <th>Rating</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for key, val in row.answers.items()|sort %}
-                        
-                        {% set parts = key.rsplit('_', 1) %}
-                        {% set category = parts[0] %}
-                        {% set index = parts[1]|int %} 
-                        
-                        {% set question_text = survey_data[category][index - 1] %}
-                        
-                        <tr>
-                            <td>
-                                <span class="category-label">{{ category }}</span><br>
-                                {{ question_text }}
-                            </td>
-                            <td>
-                                {% if val == 1 %} <span class="rating-1">Strongly Disagree (1)</span>
-                                {% elif val == 2 %} <span class="rating-2">Disagree (2)</span>
-                                {% elif val == 3 %} <span class="rating-3">Neutral (3)</span>
-                                {% elif val == 4 %} <span class="rating-4">Agree (4)</span>
-                                {% elif val == 5 %} <span class="rating-5">Strongly Agree (5)</span>
-                                {% else %} {{ val }}
+
+        <div id="details-{{ row.id }}" class="card-details">
+            <div class="details-grid">
+                
+                <div class="chart-container">
+                    <h4 style="text-align: center; color: #555; margin-bottom: 20px;">Competency Profile</h4>
+                    <canvas id="chart-{{ row.id }}"></canvas>
+                </div>
+
+                <div class="table-container">
+                    <h4 style="color: #555; margin-bottom: 20px;">Detailed Responses</h4>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Category / Question</th>
+                                <th>Rating</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for key, val in row.answers.items()|sort %}
+                                {% if '_' in key %}
+                                    {% set parts = key.rsplit('_', 1) %}
+                                    {% set category = parts[0] %}
+                                    {% set index = parts[1]|int %} 
+                                    {% set question_text = survey_data[category][index - 1] %}
+                                    
+                                    <tr>
+                                        <td>
+                                            <span class="cat-tag">{{ category }}</span><br>
+                                            <span style="color: #444;">{{ question_text }}</span>
+                                        </td>
+                                        <td>
+                                            {% if val == 1 %}<strong style="color: #dc3545;">1</strong>
+                                            {% elif val == 2 %}<span style="color: #e48632;">2</span>
+                                            {% elif val == 4 %}<span style="color: #17a2b8;">4</span>
+                                            {% elif val == 5 %}<strong style="color: #28a745;">5</strong>
+                                            {% else %} 3 {% endif %}
+                                        </td>
+                                    </tr>
                                 {% endif %}
-                            </td>
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
     </div>
     {% endfor %}
 
+    <script>
+        // 1. Accordion Toggle Logic
+        function toggleCard(id, element) {
+            const details = document.getElementById(id);
+            details.classList.toggle('show');
+            element.classList.toggle('active');
+        }
+
+        // 2. Generate Charts for Every User
+        // We loop through the data again in JS to initialize charts
+        // This is safe because Jinja renders the data into the script tag
+        
+        document.addEventListener("DOMContentLoaded", function() {
+            {% for row in responses %}
+                
+                const ctx{{ row.id }} = document.getElementById('chart-{{ row.id }}').getContext('2d');
+                new Chart(ctx{{ row.id }}, {
+                    type: 'radar',
+                    data: {
+                        labels: {{ row.stats.categories_list | tojson }},
+                        datasets: [{
+                            label: 'Employee Score',
+                            data: {{ row.stats.scores_list | tojson }},
+                            backgroundColor: 'rgba(0, 51, 102, 0.2)',
+                            borderColor: 'rgba(0, 51, 102, 1)',
+                            borderWidth: 2,
+                            pointBackgroundColor: 'rgba(0, 51, 102, 1)'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        scales: {
+                            r: {
+                                min: 0,
+                                max: 5,
+                                ticks: { stepSize: 1, display: false }, // Hide grid numbers for cleaner look
+                                pointLabels: { font: { size: 11 } }
+                            }
+                        },
+                        plugins: {
+                            legend: { display: false }
+                        }
+                    }
+                });
+
+            {% endfor %}
+        });
+    </script>
 </body>
 </html>
