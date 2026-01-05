@@ -3,21 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Employee Satisfaction Survey</title>
+    <title>Voice of BSTL</title>
     <style>
         body { font-family: Arial, Helvetica, sans-serif; background-color: #f4f4f4; margin: 0; padding: 20px; color: #333; }
         .container { max-width: 900px; margin: 0 auto; background: white; border: 1px solid #ccc; padding: 25px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
         
-        h1 { color: #003366; border-bottom: 3px solid #003366; padding-bottom: 10px; margin-top: 0; }
+        h1 { color: #FF6600; border-bottom: 3px solid #FF6600; padding-bottom: 10px; margin-top: 0; }
         
         .instructions { background-color: #eef; padding: 15px; border: 1px solid #bnd; margin-bottom: 25px; font-size: 0.95em; line-height: 1.5; }
         
         /* Category Header */
-        .category-header { background-color: #ddd; color: #003366; font-weight: bold; padding: 10px 15px; margin-top: 25px; border-left: 6px solid #003366; font-size: 1.1em; }
+        .category-header { background-color: #ddd; color: #FF6600; font-weight: bold; padding: 10px 15px; margin-top: 25px; border-left: 6px solid #FF6600; font-size: 1.1em; }
         
         /* The Table Matrix */
         table { width: 100%; border-collapse: collapse; margin-bottom: 10px; font-size: 0.9em; }
-        th { background-color: #003366; color: white; padding: 10px; text-align: center; font-weight: normal; }
+        th { background-color: #FF6600; color: white; padding: 10px; text-align: center; font-weight: normal; }
         th.question-col { text-align: left; width: 50%; }
         
         td { border-bottom: 1px solid #ddd; padding: 10px; vertical-align: middle; }
@@ -31,8 +31,8 @@
 
         /* Submit Button */
         .btn-container { text-align: center; margin-top: 50px; padding-top: 20px; border-top: 1px solid #eee; }
-        button { background-color: #cc0000; color: white; padding: 12px 30px; border: none; font-size: 16px; font-weight: bold; cursor: pointer; border-radius: 4px; }
-        button:hover { background-color: #990000; }
+        button { background-color: #E65C00; color: white; padding: 12px 30px; border: none; font-size: 16px; font-weight: bold; cursor: pointer; border-radius: 4px; }
+        button:hover { background-color: #E65C00; }
 
         /* Success Message */
         .success-box { background-color: #dff0d8; color: #3c763d; border: 1px solid #d6e9c6; padding: 20px; text-align: center; margin-bottom: 20px; font-size: 1.2em; }
@@ -41,6 +41,7 @@
 <body>
 
 <div class="container">
+    {% include 'header.html' %}  
     {% if success %}
         <div class="success-box">
             <strong>Thank You!</strong><br>
@@ -50,10 +51,67 @@
             <a href="/">Submit another response</a>
         </div>
     {% else %}
-        <h1>Employee Satisfaction Survey</h1>
+        <h1>Voice of BSTL</h1>
         <div class="instructions">
-            Please answer the following questions regarding your experience. Select the option that best describes your opinion.<br>
-            <strong>Scale:</strong> 1 (Strongly Disagree) to 5 (Strongly Agree)
+            <div style="background: #f8f9fa; border-left: 5px solid #FF6600; padding: 25px; border-radius: 8px; margin-bottom: 30px;">
+        <h2 style="color: #003366; margin-top: 0;">Your Voice Matters</h2>
+        <p style="color: #555; line-height: 1.6;">
+            At <strong>BarodaSun Technologies Ltd</strong>, we are committed to building a workplace where every team member thrives. 
+            This survey is your opportunity to provide honest, confidential feedback on our culture, leadership, and your daily experience.
+        </p>
+        
+        <div style="display: flex; gap: 20px; margin-top: 20px; flex-wrap: wrap;">
+            <div style="flex: 1; min-width: 200px; display: flex; align-items: start; gap: 10px;">
+                <span style="font-size: 1.5em;">🔒</span>
+                <div>
+                    <strong style="color: #333;">100% Confidential</strong>
+                    <div style="font-size: 0.9em; color: #666;">Your individual responses are anonymous. We look at aggregate data only.</div>
+                </div>
+            </div>
+
+            <div style="flex: 1; min-width: 200px; display: flex; align-items: start; gap: 10px;">
+                <span style="font-size: 1.5em;">📈</span>
+                <div>
+                    <strong style="color: #333;">Drive Change</strong>
+                    <div style="font-size: 0.9em; color: #666;">Leadership will use these insights to improve policies and work culture.</div>
+                </div>
+            </div>
+            
+            <div style="flex: 1; min-width: 200px; display: flex; align-items: start; gap: 10px;">
+                <span style="font-size: 1.5em;">⏱️</span>
+                <div>
+                    <strong style="color: #333;">Quick & Easy</strong>
+                    <div style="font-size: 0.9em; color: #666;">This survey takes approximately 10 minutes to complete.</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div style="margin-bottom: 30px; padding: 15px; background: white; border: 1px solid #eee; border-radius: 8px; text-align: center;">
+        <p style="margin: 0 0 10px 0; font-weight: bold; color: #003366;">How to Read the Scale:</p>
+        <div style="display: flex; justify-content: space-between; max-width: 600px; margin: 0 auto; color: #555; font-size: 0.9em;">
+            <div style="text-align: center;">
+                <div style="font-size: 1.2em; font-weight: bold; color: #dc3545;">1</div>
+                <div>Strongly<br>Disagree</div>
+            </div>
+            <div style="text-align: center;">
+                <div style="font-size: 1.2em; font-weight: bold; color: #e48632;">2</div>
+                <div>Disagree</div>
+            </div>
+            <div style="text-align: center;">
+                <div style="font-size: 1.2em; font-weight: bold; color: #999;">3</div>
+                <div>Neutral</div>
+            </div>
+            <div style="text-align: center;">
+                <div style="font-size: 1.2em; font-weight: bold; color: #17a2b8;">4</div>
+                <div>Agree</div>
+            </div>
+            <div style="text-align: center;">
+                <div style="font-size: 1.2em; font-weight: bold; color: #28a745;">5</div>
+                <div>Strongly<br>Agree</div>
+            </div>
+        </div>
+    </div>
         </div>
 
         <form action="/submit" method="POST">
@@ -69,9 +127,9 @@
                         <tr>
                             <th class="question-col">Question</th>
                             <th>Strongly<br>Disagree (1)</th>
-                            <th>2</th>
-                            <th>3</th>
-                            <th>4</th>
+                            <th>Disagree (2)</th>
+                            <th>Neutral (3)</th>
+                            <th>Agree (4)</th>
                             <th>Strongly<br>Agree (5)</th>
                         </tr>
                     </thead>

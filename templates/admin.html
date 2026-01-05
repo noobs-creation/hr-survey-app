@@ -6,7 +6,7 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
     <style>
-        :root { --primary: #003366; --bg: #f4f6f8; --success: #28a745; --danger: #dc3545; }
+        :root { --primary: #FF6600; --bg: #f4f6f8; --success: #28a745; --danger: #dc3545; }
         body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg); padding: 40px; color: #333; }
         
         .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
@@ -62,7 +62,8 @@
     </style>
 </head>
 <body>
-
+    <div class="container">
+    {% include 'header.html' %} 
     <div class="header">
         <div>
             <h1>Admin Dashboard</h1>
@@ -101,7 +102,7 @@
             
             <div class="ai-section">
                 <div class="ai-header">
-                    <strong style="color: #003366; font-size: 1.1em;">🧠 AI Insight Report</strong>
+                    <strong style="color: #FF6600; font-size: 1.1em;">🧠 AI Insight Report</strong>
                     <button class="btn-ai" onclick="analyzeAI('{{ row.id }}')">
                         <i class="ph ph-sparkle"></i> Generate Analysis
                     </button>
@@ -132,27 +133,41 @@
                         </thead>
                         <tbody>
                             {% for key, val in row.answers.items()|sort %}
-                                {% if '_' in key %}
-                                    {% set parts = key.rsplit('_', 1) %}
-                                    {% set category = parts[0] %}
-                                    {% set index = parts[1]|int %} 
-                                    {% set question_text = survey_data[category][index - 1] %}
-                                    
-                                    <tr>
-                                        <td>
-                                            <span class="cat-tag">{{ category }}</span><br>
-                                            <span style="color: #444;">{{ question_text }}</span>
-                                        </td>
-                                        <td>
-                                            {% if val == 1 %}<strong style="color: #dc3545;">1</strong>
-                                            {% elif val == 2 %}<span style="color: #e48632;">2</span>
-                                            {% elif val == 4 %}<span style="color: #17a2b8;">4</span>
-                                            {% elif val == 5 %}<strong style="color: #28a745;">5</strong>
-                                            {% else %} 3 {% endif %}
-                                        </td>
-                                    </tr>
-                                {% endif %}
-                            {% endfor %}
+    {% if '_' in key %}
+        {% set parts = key.rsplit('_', 1) %}
+        {% set raw_cat = parts[0] %}
+        
+        {# --- FIX: Handle mismatch between 'and' (DB) and '&' (JSON) --- #}
+        {% if raw_cat in survey_data %}
+            {% set category = raw_cat %}
+        {% elif raw_cat.replace(' and ', ' & ') in survey_data %}
+            {% set category = raw_cat.replace(' and ', ' & ') %}
+        {% else %}
+            {% set category = raw_cat %}
+        {% endif %}
+
+        {% set index = parts[1]|int %} 
+        
+        {# --- SAFETY CHECK: Only try to show text if category exists --- #}
+        {% if category in survey_data %}
+            {% set question_text = survey_data[category][index - 1] %}
+            
+            <tr>
+                <td>
+                    <span class="cat-tag">{{ category }}</span><br>
+                    <span style="color: #444;">{{ question_text }}</span>
+                </td>
+                <td>
+                    {% if val == 1 %}<strong style="color: #dc3545;">1</strong>
+                    {% elif val == 2 %}<span style="color: #e48632;">2</span>
+                    {% elif val == 4 %}<span style="color: #17a2b8;">4</span>
+                    {% elif val == 5 %}<strong style="color: #28a745;">5</strong>
+                    {% else %} 3 {% endif %}
+                </td>
+            </tr>
+        {% endif %}
+    {% endif %}
+{% endfor %}
                         </tbody>
                     </table>
                 </div>
@@ -160,7 +175,7 @@
         </div>
     </div>
     {% endfor %}
-
+</div>
     <script>
         // 1. Accordion Toggle
         function toggleCard(id, element) {
@@ -226,5 +241,6 @@
             {% endfor %}
         });
     </script>
+    
 </body>
 </html>
