@@ -5,14 +5,21 @@ from flask import Flask, render_template, request, jsonify
 from psycopg2.extras import RealDictCursor
 from datetime import datetime
 import pytz
-from dotenv import load_dotenv
+# from dotenv import load_dotenv
+# --- 1. ROBUST DOTENV IMPORT ---
+# This prevents crashes on Render if python-dotenv is missing
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    pass  # Ignore if library is not installed (Render uses system env vars)
 
 # --- NEW AI LIBRARY (google-genai) ---
 from google import genai
 from google.genai import types
 
-# Load environment variables
-load_dotenv()
+# # Load environment variables
+# load_dotenv()
 
 # Configure the New Gemini Client
 client = genai.Client(api_key=os.environ.get("GEMINI_API_KEY"))
