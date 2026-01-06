@@ -4,8 +4,7 @@
     "Managers in BSTL actively seek innovative ideas from me.",
     "My Department encourages me to find new and better ways to do things.",
     "I feel my organization has acceptance for suggestions on ideas of doing new things or change in processes.",
-    "I feel the Leadership is willing to change to meet new objectives.",
-    "I perceive that the Leadership is focused on process improvement."
+    "I feel the Leadership is willing to change to meet new objectives."
   ],
   "Satisfaction": [
     "I feel satisfied working at BarodaSun Technologies Limited.",
@@ -14,36 +13,33 @@
     "Overall, my workload is reasonable."
   ],
   "Compensation & Benefits": [
-    "I am satisfied with the level of pay I receive.",
-    "I feel I am adequately paid compared to my colleagues at other companies.",
-    "I am satisfied with my benefits.",
-    "The benefits offered provide security for me and my family."
+    "I am satisfied with the level of pay and benefits I receive.",
+    "I feel my pay is at par or better as compared to my colleagues at other companies.",
+    "The pay and benefits offered gives me a sense of financial security."
   ],
   "Communication": [
     "I feel managers value honest and candid feedback.",
     "I generally feel informed about changes that affect me.",
-    "The Managers at BSTL communicate clear objectives for the company to achieve and related information about the company."    
+    "The Managers at BSTL communicate clear goals and attached timelines."    
   ],
-  "Mentoring": [
+  "Mentoring & Development": [
     "My Supervisor coaches me to help me develop professionally.",
     "My Supervisor takes interest in my career and skill development.",
-    "I receive mentoring and coaching from my superior.",
-    "My Supervisor gives me honest feedback on how I can achieve my goals."
-  ],
-  "Teamwork": [
-    "I feel involved, as part of my team.",
-    "I have good work relationship with my co-workers.",
-    "My co-workers help each other out professionally.",
-    "BSTL's organizational culture promotes camaraderie and teamwork."
-  ],
-  "Development": [
+    "I feel positive about the mentoring and coaching received from my superiors.",
+    "My Supervisor provides feedback on my areas of improvement and also how I can achieve my goals.",
     "BSTL provides sufficient scope for developing my skills and capabilities",
     "I am continuously learning and trying to improve myself.",
     "I am challenged to improve my skills and capabilities to complete assigned tasks."
   ],
+  "Teamwork": [
+    "I feel involved, as part of my team.",
+    "I have good work relationship with my co-workers.",
+    "My co-workers help each other professionally.",
+    "BSTL's organizational culture promotes camaraderie and teamwork."
+  ],
   "Ethics & Integrity" : [
     "I feel comfortable reporting any unethical behavior without fear of retaliation.",
-    "Senior leadership demonstrates ethical standards in their decisions and actions.",
-    "We are encouraged to be open and honest, whatever may the situation and conditions be."
+    "Senior leadership demonstrates transparent ethical standards in their decisions and actions.",
+    "We are encouraged to be open, transparent and honest, in all situations and conditions."
   ]
 }
