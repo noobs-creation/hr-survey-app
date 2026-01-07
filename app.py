@@ -1,5 +1,13 @@
 
-
+"""
+HR Survey Application - Main Application Entry Point
+--------------------------------------------------
+This Flask application handles:
+1. Serving the Employee Survey interface.
+2. Collecting and persisting responses to a PostgreSQL database.
+3. Generating Admin Dashboards with statistical analysis.
+4. Integrating Google Gemini AI for qualitative psychological profiling.
+"""
 import os
 import json
 import psycopg2
@@ -9,6 +17,10 @@ from datetime import datetime
 import pytz
 
 # --- 1. ROBUST DOTENV IMPORT ---
+# --- Configuration & Environment Setup ---
+# Robust configuration pattern: 
+# 1. Attempts to load local .env file for development.
+# 2. Falls back to system environment variables for production (Render/AWS).
 try:
     from dotenv import load_dotenv
     load_dotenv()
@@ -28,7 +40,10 @@ app = Flask(__name__)
 with open('final_hr_questions.json', 'r') as f:
     SURVEY_DATA = json.load(f)
 
+
 def get_db_connection():
+    # Establishes a connection to the PostgreSQL database.
+    # Relies on the 'DATABASE_URL' environment variable for security.
     db_url = os.environ.get('DATABASE_URL')
     if not db_url:
         pass 
@@ -37,6 +52,8 @@ def get_db_connection():
 
 def get_ist_time():
     """Returns current time in Indian Standard Time"""
+    # UTC is the standard for storage, but IST is required for
+    # admin display purposes in the specific region context.
     utc_now = datetime.now(pytz.utc)
     ist_tz = pytz.timezone('Asia/Kolkata')
     return utc_now.astimezone(ist_tz)
@@ -48,6 +65,9 @@ def index():
 @app.route('/submit', methods=['POST'])
 def submit():
     form_data = request.form.to_dict()
+    # --- Data Sanitization ---
+    # Convert numeric string inputs (e.g., "5") to integers for calculation.
+    # Preserve text inputs (e.g., comments) as strings.
     respondent_name = form_data.pop('respondent_name', 'Anonymous') or 'Anonymous'
     
     processed_answers = {}
@@ -104,7 +124,10 @@ def admin():
         for key, val in answers.items():
             if isinstance(val, int) and '_' in key:
                 raw_cat = key.rsplit('_', 1)[0]
-                
+                # --- Data Integrity Normalization ---
+                # Resolves naming discrepancies between the Database (stores "and") 
+                # and the JSON configuration (uses "&").
+                # This ensures scores are correctly mapped to their categories.
                 # --- Fix: Normalize 'and' to '&' ---
                 if raw_cat in cat_totals:
                     category = raw_cat
@@ -114,7 +137,11 @@ def admin():
                     continue
 
                 cat_totals[category].append(val)
-        
+        # --- Statistical Calculation Engine ---
+        # Calculates "Equal Weight" averages.
+        # 1. Calculate average for each Category first.
+        # 2. Average the Category scores to get the Overall Score.
+        # This prevents categories with more questions from skewing the final result.
         # 3. Calculate Normalized Stats
         cat_averages = {}
         sum_of_category_averages = 0
@@ -134,7 +161,10 @@ def admin():
             overall = round(sum_of_category_averages / valid_categories_count, 2)
         else:
             overall = 0
-        
+        # --- Insight Logic & Tie-Breaker ---
+        # Identifies Top Strength and Weakness.
+        # Includes logic to handle "Flat Profiles" (e.g., User rated everything 5/5),
+        # preventing arbitrary alphabetical sorting in tie scenarios.
         # 5. Determine Strength/Weakness (WITH TIE-BREAKER LOGIC)
         active_cats = {k:v for k,v in cat_averages.items() if v > 0}
         
@@ -280,7 +310,11 @@ def analyze_aggregate():
             final_averages[cat] = 0
 
     prompt_data = "\n".join([f"{cat}: {score}/5.0" for cat, score in final_averages.items()])
-
+    # --- Prompt Engineering ---
+    # Constructs a context-aware system prompt for the LLM.
+    # 1. Feeds raw quantitative data.
+    # 2. Instructs the model to act as an Organizational Psychologist.
+    # 3. Enforces a strict HTML output format for frontend rendering.
     system_prompt = f"""
     You are an expert Organizational Development Consultant and HR Strategist.
     You are analyzing the AGGREGATED survey results for the entire company.
@@ -320,6 +354,8 @@ def analyze_aggregate():
 
     try:
         # --- FIX: Use Valid Model Name ---
+        # Calls the Gemini API.
+        # Note: Ensure the model version (e.g., 'gemini-2.5-flash-lite') is currently supported.
         response = client.models.generate_content(
             model='gemini-2.5-flash-lite', 
             contents=system_prompt
@@ -364,7 +400,11 @@ def analyze_response(response_id):
                 prompt_data += f"[{category}] {question_text}: {val}/5\n"
             except:
                 continue
-
+    # --- Prompt Engineering ---
+    # Constructs a context-aware system prompt for the LLM.
+    # 1. Feeds raw quantitative data.
+    # 2. Instructs the model to act as an Organizational Psychologist.
+    # 3. Enforces a strict HTML output format for frontend rendering.
     system_prompt = f"""
     You are an expert Organizational Psychologist and Senior HR Analyst.
     Analyze the following employee survey data.
@@ -399,6 +439,8 @@ def analyze_response(response_id):
 
     try:
         # --- FIX: Use Valid Model Name ---
+        # Calls the Gemini API.
+        # Note: Ensure the model version (e.g., 'gemini-2.5-flash-lite') is currently supported.
         response = client.models.generate_content(
             model='gemini-2.5-flash-lite',
             contents=system_prompt
@@ -408,5 +450,8 @@ def analyze_response(response_id):
         print(f"Gemini API Error: {e}")
         return jsonify({"error": str(e)}), 500
 
+# --- Application Entry Point ---
+# Runs the server in debug mode for local development.
+# In production, this is handled by the WSGI server (Gunicorn).
 if __name__ == '__main__':
     app.run(debug=True)
